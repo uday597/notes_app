@@ -10,8 +10,8 @@ class DBhelper {
   static const tablename = 'notes';
   static const dbversion = 1;
   static const idcolumn = 'id';
-  static const titlecolumn = 'title';
   static const descolumn = 'description';
+   static final DBhelper instanse = DBhelper();
   static Database? _database;
   Future<Database?> get database async {
     _database ??= await initdb();
@@ -25,6 +25,6 @@ class DBhelper {
   }
 
   Future oncreate(Database db, int version) async {
-    db.execute('''CREATE TABLE $tablename($idcolumn integer primary key autoincrement,$titlecolumn text,$descolumn text )''');
+    db.execute('''CREATE TABLE $tablename($idcolumn integer primary key autoincrement,$descolumn text )''');
   }
 }

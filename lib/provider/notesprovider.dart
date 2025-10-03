@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:notes/database/notes_db.dart';
 
 class Notesprovider extends ChangeNotifier {
-  List<String> _notes = [];
-  List<String> get notes => _notes;
-  void addnotes(String note) {
-    _notes.add(note);
+  final NotesDB _notesDB = NotesDB();
+
+  List<Map<String, dynamic>> _notes = [];
+
+  List<Map<String, dynamic>> get notes => _notes;
+
+  Future<void> loadNotes() async {
+    _notes = await _notesDB.getdata();
     notifyListeners();
   }
 
-  void removenotes(int index) {
-    _notes.removeAt(index);
-    notifyListeners();
+  Future<void> addNote(String note) async {
+    await _notesDB.adddata(note);
+    await loadNotes();
   }
 
-  void updatenotes(int index, String note) {
-    _notes[index] = note;
-    notifyListeners();
+  Future<void> updateNote(int id, String note) async {
+    await _notesDB.updateData(id, note);
+    await loadNotes();
+  }
+
+  Future<void> deleteNote(int id) async {
+    await _notesDB.deleteData(id);
+    await loadNotes();
   }
 }

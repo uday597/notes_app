@@ -11,9 +11,16 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<Notesprovider>(context, listen: false).loadNotes();
+    });
+  }
+
   TextEditingController textcontroller = TextEditingController();
 
-  // Bright pastel colors
   final List<Color> noteColors = [
     Color(0xFFFFF9C4),
     Color(0xFFFFCDD2),
@@ -82,7 +89,7 @@ class _HomeState extends State<Home> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              note,
+                              note['description'],
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.black87,
@@ -96,38 +103,89 @@ class _HomeState extends State<Home> {
                                 IconButton(
                                   onPressed: () {
                                     final controller = TextEditingController(
-                                      text: note,
+                                      text: note['description'],
                                     );
                                     showDialog(
                                       context: context,
                                       builder: (context) {
                                         return AlertDialog(
-                                          title: const Text('Edit Note'),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          title: Row(
+                                            children: const [
+                                              Icon(
+                                                Icons.edit,
+                                                color: Colors.orange,
+                                              ),
+                                              SizedBox(width: 8),
+                                              Text(
+                                                'Edit Note',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                           content: TextField(
                                             controller: controller,
-                                            maxLines: 3,
+                                            maxLines: 4,
                                             decoration: InputDecoration(
+                                              hintText: "Update your note...",
+                                              filled: true,
+                                              fillColor: Colors.grey[100],
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 12,
+                                                    horizontal: 16,
+                                                  ),
                                               border: OutlineInputBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(12),
+                                                    BorderRadius.circular(15),
+                                                borderSide: BorderSide.none,
                                               ),
                                             ),
                                           ),
                                           actions: [
                                             TextButton(
                                               onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text(
+                                                "Cancel",
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.orange,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                              ),
+                                              onPressed: () {
                                                 if (controller
                                                     .text
                                                     .isNotEmpty) {
-                                                  provider.updatenotes(
-                                                    index,
+                                                  provider.updateNote(
+                                                    note['id'],
                                                     controller.text,
                                                   );
                                                 }
                                                 controller.clear();
                                                 Navigator.pop(context);
                                               },
-                                              child: const Text('Update'),
+                                              child: const Text(
+                                                "Update",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
                                             ),
                                           ],
                                         );
@@ -138,7 +196,7 @@ class _HomeState extends State<Home> {
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    provider.removenotes(index);
+                                    provider.deleteNote(note['id']);
                                   },
                                   icon: const Icon(
                                     Icons.delete,
@@ -163,27 +221,58 @@ class _HomeState extends State<Home> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: const Text('Add Note'),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                title: Row(
+                  children: const [
+                    Icon(Icons.note_add, color: Colors.teal),
+                    SizedBox(width: 8),
+                    Text(
+                      'Add New Note',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
                 content: TextField(
                   controller: textcontroller,
-                  maxLines: 3,
+                  maxLines: 4,
                   decoration: InputDecoration(
                     label: const Text('Enter something'),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                   ),
                 ),
                 actions: [
                   TextButton(
                     onPressed: () {
+                      textcontroller.clear();
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      "Cancel",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () {
                       if (textcontroller.text.isNotEmpty) {
-                        provider.addnotes(textcontroller.text);
+                        provider.addNote(textcontroller.text);
                       }
                       textcontroller.clear();
                       Navigator.pop(context);
                     },
-                    child: const Text('ADD'),
+                    child: const Text(
+                      "Add",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               );
